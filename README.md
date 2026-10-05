@@ -4,6 +4,10 @@ A third-person survival action prototype that runs in the browser (three.js, no 
 
 Elias has to reach Mara in an abandoned mill town held by the Ravel militia, keep her alive, call for help from a radio tower, hold a landing zone and get both of them onto an evacuation helicopter.
 
+## Gameplay video
+
+A 72-second demo run (1280x720): [media/ashgrove-demo.mp4](media/ashgrove-demo.mp4)
+
 ## Play
 
 Open `index.html` through any static web server (the character models are loaded with `fetch`, so opening the file directly from disk will fall back to simple figures):
