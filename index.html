@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c0d">
 </head>
 <body>
 <title>Ashgrove Extraction</title>
@@ -142,6 +143,46 @@ input[type=range]{width:160px;accent-color:var(--sodium)}
   .ammo{font-size:34px}
 }
 @media (prefers-reduced-motion:reduce){#fade{transition:none}}
+/* touch controls */
+#touchUI{position:absolute;inset:0;pointer-events:none}
+#touchUI .zone{position:absolute;pointer-events:auto;touch-action:none}
+#stickZone{left:0;bottom:0;width:42%;height:72%}
+#lookZone{right:0;top:0;width:58%;height:100%}
+#stick{position:absolute;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:2px solid rgba(235,230,218,.35);background:rgba(10,12,13,.25);pointer-events:none}
+#stick i{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(235,230,218,.55)}
+#stickHint{position:absolute;left:calc(16px + env(safe-area-inset-left,0px));bottom:calc(64px + env(safe-area-inset-bottom,0px));width:96px;height:96px;border-radius:50%;border:2px dashed rgba(235,230,218,.25);pointer-events:none}
+.tb{position:absolute;pointer-events:auto;touch-action:none;appearance:none;border:1.5px solid rgba(235,230,218,.5);background:rgba(10,12,13,.42);color:var(--ink);border-radius:50%;width:60px;height:60px;font:700 12px/1.05 var(--f-hud);letter-spacing:.08em;text-transform:uppercase;display:grid;place-items:center;padding:0;-webkit-tap-highlight-color:transparent}
+.tb[aria-pressed="true"],.tb.down{background:rgba(232,166,64,.85);color:#17110a;border-color:var(--sodium)}
+.tb.fire{width:84px;height:84px;right:calc(22px + env(safe-area-inset-right,0px));bottom:calc(22px + env(safe-area-inset-bottom,0px));border-color:rgba(222,86,64,.8);background:rgba(120,30,20,.45);font-size:14px}
+.tb.fire small{display:block;font:500 12px var(--f-data);letter-spacing:0;margin-top:2px}
+#tAim{right:calc(122px + env(safe-area-inset-right,0px));bottom:calc(26px + env(safe-area-inset-bottom,0px))}
+#tReload{right:calc(112px + env(safe-area-inset-right,0px));bottom:calc(100px + env(safe-area-inset-bottom,0px));width:54px;height:54px}
+#tCrouch{right:calc(34px + env(safe-area-inset-right,0px));bottom:calc(122px + env(safe-area-inset-bottom,0px));width:54px;height:54px}
+#tUse{right:calc(196px + env(safe-area-inset-right,0px));bottom:calc(34px + env(safe-area-inset-bottom,0px));border-color:var(--sodium)}
+#tUse.ready{background:rgba(232,166,64,.85);color:#17110a}
+#tRun{left:calc(20px + env(safe-area-inset-left,0px));bottom:calc(178px + env(safe-area-inset-bottom,0px));width:54px;height:54px}
+.trow{position:absolute;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:none}
+.trow .tb{position:static;width:auto;height:38px;border-radius:19px;padding:0 12px;font-size:12px}
+#rotate{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(6,7,8,.94);color:var(--ink);font:600 20px/1.4 var(--f-hud);letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:24px}
+body.touch #view{touch-action:none}
+body.touch .obj{width:min(290px,42vw);padding:6px 10px 8px}
+body.touch .obj .eyebrow,body.touch .obj .obText{display:none}
+body.touch .obTitle{font-size:17px;margin-top:0}
+body.touch .obMeta{margin-top:4px}
+body.touch .map{width:100px;height:100px}
+body.touch #mini{width:100px;height:100px}
+body.touch .vitals{top:calc(74px + env(safe-area-inset-top,0px));bottom:auto;width:min(210px,34vw);gap:3px}
+body.touch .who{font-size:12px}
+body.touch .who.m{margin-top:3px}
+body.touch .who .num{font-size:12px}
+body.touch .bar{height:5px}
+body.touch .arms{display:none}
+body.touch .prompt{bottom:calc(112px + env(safe-area-inset-bottom,0px));font-size:15px}
+body.touch .sub{bottom:calc(150px + env(safe-area-inset-bottom,0px));font-size:17px}
+body.touch .toast{top:26%;font-size:14px}
+body.touch .keys{display:none}
+body.touch .touchHelp{display:block}
+.touchHelp{display:none}
 </style>
 
 <canvas id="view" tabindex="0" aria-label="Game view"></canvas>
@@ -176,7 +217,21 @@ input[type=range]{width:160px;accent-color:var(--sodium)}
   <div id="prompt" class="prompt" hidden><kbd>E</kbd><span id="promptText"></span><div class="hold"><i id="holdBar"></i></div></div>
   <div id="toast" class="toast" hidden></div>
   <div id="inv" class="inv" hidden></div>
+  <div id="touchUI" hidden>
+    <div class="zone" id="stickZone"></div>
+    <div class="zone" id="lookZone"></div>
+    <div id="stickHint"></div>
+    <div id="stick" hidden><i></i></div>
+    <button type="button" class="tb fire" id="tFire">Fire<small id="tAmmo">30</small></button>
+    <button type="button" class="tb" id="tAim" aria-pressed="false">Aim</button>
+    <button type="button" class="tb" id="tReload">Reload</button>
+    <button type="button" class="tb" id="tCrouch" aria-pressed="false">Crouch</button>
+    <button type="button" class="tb" id="tUse">Use</button>
+    <button type="button" class="tb" id="tRun" aria-pressed="false">Run</button>
+    <div class="trow"><button type="button" class="tb" id="tMara">Mara: wait</button><button type="button" class="tb" id="tMed">Medkit 1</button><button type="button" class="tb" id="tSwap">Swap gun</button><button type="button" class="tb" id="tPause">Pause</button></div>
+  </div>
 </div>
+<div id="rotate" hidden>Turn your phone sideways to play</div>
 <div id="fade"></div>
 
 <div id="menu" class="wrap">
@@ -214,9 +269,11 @@ input[type=range]{width:160px;accent-color:var(--sodium)}
       <div><kbd>V</kbd><span>Swap shoulder</span></div>
       <div><kbd>Tab</kbd><span>Inventory</span></div>
       <div><kbd>Esc</kbd><span>Pause</span></div>
+      <div><kbd>Arrow keys</kbd><span>Look around (no mouse needed)</span></div>
     </div>
+    <p class="fine touchHelp">Phone controls: drag on the left side to move, drag on the right side to look around. Hold FIRE to shoot, tap AIM to aim, tap USE near Mara or items. Play with the phone turned sideways.</p>
     <p class="fine">Crouch behind low walls, cars and crates to break line of sight. Enemies hear gunfire. If Mara dies, the mission fails. Checkpoints save after each objective.</p>
-    <p class="fine">Characters: Elias is the Ready Player Me sample avatar from the three.js examples. Mara is the "brunette" Ready Player Me avatar from the TalkingHead project, used under CC BY-NC 4.0. The militia soldier and motion capture come from the three.js examples (Mixamo).</p>
+    <p class="fine">Characters: Elias is the AvatarSDK MetaPerson sample avatar and Mara is the Avaturn sample avatar, both from the TalkingHead project and licensed for non-commercial use. The militia soldier and motion capture come from the three.js examples (Mixamo).</p>
   </div>
   <div class="sheet" id="pausePanel" hidden>
     <div class="brand"><span class="ey">Paused</span><h1>Hold</h1></div>
@@ -1044,7 +1101,8 @@ async function loadGLB(url) {
 async function loadRigs() {
   if (!THREE.GLTFLoader || !THREE.SkeletonUtils) return false;
   try {
-    const [s, man, woman] = await Promise.race([Promise.all([loadGLB('models/soldier.json'), loadGLB('models/man.json'), loadGLB('models/woman.json')]), new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 40000))]);
+    let got = 0; const prog = p => p.then(v => { got++; const b = document.getElementById('btnStart'); if (b && b.disabled) b.textContent = 'Loading characters ' + got + '/3'; return v; });
+    const [s, man, woman] = await Promise.race([Promise.all([prog(loadGLB('models/soldier.json')), prog(loadGLB('models/man.json')), prog(loadGLB('models/woman.json'))]), new Promise((_, r) => setTimeout(() => r(new Error('timeout')), 40000))]);
     RIG.soldier = s; RIG.man = man; RIG.woman = woman;
     for (const c of s.animations) { if (c.name === 'TPose') continue; c.tracks = c.tracks.filter(t => t.name.endsWith('.quaternion')); RIG.clips[c.name] = c; }
     RIG.ready = !!(RIG.clips.Idle && RIG.clips.Walk && RIG.clips.Run);
@@ -1184,8 +1242,8 @@ function syncModel(a) { const h = a.model; h.root.position.set(a.x, h.lift || 0,
 function muzzleWorld(h) { const m = h.gun.userData.muzzle; h.gun.updateWorldMatrix(true, false); return m.getWorldPosition(new V3()); }
 
 const LOOKS = {
-  player: { rig: 'man', height: 1.8, skin: '#b98a6c', top: '#3f4636', pants: '#3a3f47', boots: '#2a2420', hair: '#241c17', vest: '#4a4a3e', pack: '#3a3a30', glove: '#2b2a27', scale: 0.95, armed: true, pistol: true },
-  mara: { rig: 'woman', height: 1.68, skin: '#d0a083', top: '#7a3b30', pants: '#2f3138', boots: '#3a2c24', hair: '#4a2f22', long: true, scarf: '#bfae8e', scale: 0.9, build: 0.86 },
+  player: { rig: 'man', height: 1.82, skin: '#b98a6c', top: '#3f4636', pants: '#3a3f47', boots: '#2a2420', hair: '#241c17', vest: '#4a4a3e', pack: '#3a3a30', glove: '#2b2a27', scale: 0.95, armed: true, pistol: true },
+  mara: { rig: 'woman', height: 1.7, skin: '#d0a083', top: '#7a3b30', pants: '#2f3138', boots: '#3a2c24', hair: '#4a2f22', long: true, scarf: '#bfae8e', scale: 0.9, build: 0.86 },
   rifle: { rig: 'soldier', tint: '#b9ab96', height: 1.78, skin: '#a57d63', top: '#4b4e48', pants: '#3b3d3a', boots: '#222222', helmet: '#3e423c', mask: '#232425', vest: '#5c5b4c', glove: '#1e1e1e', scale: 0.96, armed: true },
   flanker: { rig: 'soldier', tint: '#d2a77a', height: 1.76, skin: '#9c7258', top: '#5f5a4c', pants: '#47443c', boots: '#262420', hood: '#4d493f', mask: '#2a2a2a', band: '#8e3b2a', scale: 0.94, armed: true, build: 0.92 },
   heavy: { rig: 'soldier', tint: '#7a7d82', height: 1.9, skin: '#9a7a62', top: '#2e3132', pants: '#2a2c2d', boots: '#1b1b1b', vest: '#1d1f20', helmet: '#1c1e1f', visor: true, mask: '#181818', glove: '#151515', scale: 1.08, build: 1.18, armed: true }
@@ -1580,11 +1638,13 @@ function collide(a) {
 function updatePlayer(dt) {
   if (P.dead) { animHuman(P.model, { dead: true }, dt); syncModel(P); return; }
   const w = P.weapons[P.w];
-  const ix = (K.KeyD ? 1 : 0) - (K.KeyA ? 1 : 0), iz = (K.KeyW ? 1 : 0) - (K.KeyS ? 1 : 0);
+  const ix = clamp((K.KeyD ? 1 : 0) - (K.KeyA ? 1 : 0) + TOUCH.mx, -1, 1), iz = clamp((K.KeyW ? 1 : 0) - (K.KeyS ? 1 : 0) + TOUCH.my, -1, 1);
+  const lookK = 2.2 * dt * S.sens; if (K.ArrowLeft) CAM.yaw += lookK; if (K.ArrowRight) CAM.yaw -= lookK; if (K.ArrowUp) CAM.pitch += lookK * 0.6; if (K.ArrowDown) CAM.pitch -= lookK * 0.6;
+  const mag = Math.min(1, Math.hypot(ix, iz));
   const fx = -Math.sin(CAM.yaw), fz = -Math.cos(CAM.yaw), rx = Math.cos(CAM.yaw), rz = -Math.sin(CAM.yaw);
-  let mx = fx * iz + rx * ix, mz = fz * iz + rz * ix; const ml = Math.hypot(mx, mz); if (ml > 0) { mx /= ml; mz /= ml; }
+  let mx = fx * iz + rx * ix, mz = fz * iz + rz * ix; const ml = Math.hypot(mx, mz) > 0.12 ? Math.hypot(mx, mz) : 0; if (ml > 0) { mx = mx / ml * mag; mz = mz / ml * mag; } else { mx = 0; mz = 0; }
   P.aim = MB.r && P.healing <= 0;
-  const wantRun = K.ShiftLeft || K.ShiftRight;
+  const wantRun = K.ShiftLeft || K.ShiftRight || (TOUCH.run && mag > 0.5);
   P.run = !!(wantRun && ml > 0 && !P.aim && P.stam > 1 && !P.exhausted && !MB.l);
   if (P.run && P.crouch) P.crouch = false;
   let sp = P.crouch ? 1.9 : P.run ? 6.3 : 3.5; if (P.aim) sp *= 0.7; if (P.healing > 0) sp *= 0.5;
@@ -2057,9 +2117,10 @@ function renderInv() {
 function nearestIA() { let best = null, bd = 1e9; for (const a of IA) { if (!a.active || (a.when && !a.when())) continue; const p = iaPos(a), d = Math.hypot(p.x - P.x, p.z - P.z); if (d < a.r && d < bd) { best = a; bd = d; } } return best; }
 function updateInteract(dt) {
   const a = P.dead ? null : nearestIA(), pr = $('prompt');
+  TOUCH.useReady = false;
   if (!a) { pr.hidden = true; P.holdT = 0; P.holdA = null; P.ePressed = false; return; }
   const lab = typeof a.label === 'function' ? a.label() : a.label, ok = !a.can || a.can();
-  pr.hidden = false; $('promptText').textContent = lab; pr.classList.toggle('off', !ok); pr.querySelector('kbd').textContent = a.hold > 0 ? 'Hold E' : 'E';
+  pr.hidden = false; $('promptText').textContent = lab; pr.classList.toggle('off', !ok); pr.querySelector('kbd').textContent = TOUCH.on ? (a.hold > 0 ? 'Hold USE' : 'USE') : (a.hold > 0 ? 'Hold E' : 'E'); TOUCH.useReady = true;
   if (!ok) { P.holdT = 0; $('holdBar').style.transform = 'scaleX(0)'; P.ePressed = false; return; }
   if (a.hold > 0) {
     if (K.KeyE) { if (P.holdA !== a) { P.holdA = a; P.holdT = 0; } P.holdT += dt; $('holdBar').style.transform = `scaleX(${clamp(P.holdT / a.hold, 0, 1)})`; if (P.holdT >= a.hold) { P.holdT = 0; P.holdA = null; $('holdBar').style.transform = 'scaleX(0)'; a.use(); } }
@@ -2072,13 +2133,19 @@ function updateInteract(dt) {
 const menu = $('menu'), hud = $('hud');
 function showPanel(id) { for (const p of ['startPanel', 'pausePanel', 'endPanel']) $(p).hidden = p !== id; menu.hidden = !id; }
 function requestLock() { if (S.noLock) return; try { const r = canvas.requestPointerLock(); if (r && r.catch) r.catch(() => { S.noLock = true; }); } catch (e) { S.noLock = true; } }
+function doCrouch() { if (!P.run) P.crouch = !P.crouch; }
+function switchWeapon(n) { if (n !== P.w) { P.w = n; P.reloading = 0; P.fireCD = 0.4; sfxClick(1500, 0.2, 0.05); } }
+function useMedkit() { if (P.medkits > 0 && P.hp < 100 && P.healing <= 0) { P.medkits--; P.healing = 2.2; P.reloading = 0; } else if (P.medkits <= 0) toast('No medkits'); else if (P.hp >= 100) toast('Health is full'); }
+function toggleMara() { if (!MA.joined || MA.dead) return; if (MA.mode === 'follow') { MA.mode = 'hold'; MA.hold = { x: MA.x, z: MA.z }; say('mara', 'Okay. I will wait here. Do not be long.'); } else { MA.mode = 'follow'; MA.hold = null; say('mara', 'Coming. Right behind you.'); } }
 function begin(fromCheckpoint) {
   initAudio(); applyGfx();
   if (fromCheckpoint && CP) restoreCheckpoint(); else { CP = null; try { localStorage.removeItem(CP_KEY); } catch (e) {} resetMission(); }
-  S.running = true; S.paused = false; showPanel(null); hud.hidden = false; $('fade').style.opacity = 0; canvas.focus(); requestLock();
+  S.running = true; S.paused = false; showPanel(null); hud.hidden = false; $('fade').style.opacity = 0; canvas.focus();
+  if (TOUCH.on) goFullscreen(); else { requestLock(); setTimeout(() => { if (S.running && !S.locked) toast('Move the mouse over the game to look. Arrow keys also turn.'); }, 1500); }
 }
+function goFullscreen() { try { const el = document.documentElement, r = el.requestFullscreen ? el.requestFullscreen() : el.webkitRequestFullscreen && el.webkitRequestFullscreen(); if (r && r.then) r.then(() => { try { screen.orientation.lock('landscape').catch(() => {}); } catch (e) {} }).catch(() => {}); } catch (e) {} }
 function pause() { if (!S.running || S.over) return; S.paused = true; showPanel('pausePanel'); for (const k in K) K[k] = false; MB.l = MB.r = false; try { speechSynthesis.cancel(); } catch (e) {} }
-function resume() { S.paused = false; showPanel(null); canvas.focus(); requestLock(); }
+function resume() { S.paused = false; showPanel(null); canvas.focus(); if (!TOUCH.on) requestLock(); }
 function toTitle() { S.running = false; S.paused = false; S.over = false; hud.hidden = true; heliSound(false); refreshContinue(); showPanel('startPanel'); try { document.exitPointerLock(); } catch (e) {} }
 function endGame(won, text) {
   if (S.over) return; S.over = true;
@@ -2098,7 +2165,8 @@ function refreshContinue() { loadSaved(); const b = $('btnContinue'); if (CP) { 
 function applyGfx() {
   const low = S.gfx === 'low';
   if (renderer.shadowMap.enabled === low) { renderer.shadowMap.enabled = !low; scene.traverse(o => { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.needsUpdate = true); }); }
-  renderer.setPixelRatio(low ? 1 : Math.min(window.devicePixelRatio || 1, 1.5)); renderer.setSize(innerWidth, innerHeight, false);
+  renderer.setPixelRatio(low ? (TOUCH.on ? Math.min(1, (window.devicePixelRatio || 1) * 0.75) : 1) : Math.min(window.devicePixelRatio || 1, 1.5)); renderer.setSize(innerWidth, innerHeight, false);
+  for (const L of LIGHTS) L.L.visible = !low || L === LIGHTS[0]; if (DYN.fireLight) DYN.fireLight.visible = !low; for (const m of DYN.mist) m.s.visible = !low;
   if (DYN.grass) DYN.grass.visible = !low;
 }
 function segInit(id, cb) { const el = $(id); el.addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; for (const x of el.querySelectorAll('button')) x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); cb(b.dataset.v); }); }
@@ -2138,13 +2206,13 @@ addEventListener('keydown', e => {
   if (S.paused) return;
   K[e.code] = true; if (e.repeat) return;
   switch (e.code) {
-    case 'KeyC': if (!P.run) P.crouch = !P.crouch; break;
+    case 'KeyC': doCrouch(); break;
     case 'KeyR': startReload(); break;
-    case 'Digit1': case 'Digit2': { const n = e.code === 'Digit1' ? 0 : 1; if (n !== P.w) { P.w = n; P.reloading = 0; P.fireCD = 0.4; sfxClick(1500, 0.2, 0.05); } break; }
+    case 'Digit1': case 'Digit2': switchWeapon(e.code === 'Digit1' ? 0 : 1); break;
     case 'KeyE': P.ePressed = true; break;
-    case 'KeyH': if (P.medkits > 0 && P.hp < 100 && P.healing <= 0) { P.medkits--; P.healing = 2.2; P.reloading = 0; } else if (P.medkits <= 0) toast('No medkits'); break;
+    case 'KeyH': useMedkit(); break;
     case 'KeyV': CAM.side *= -1; break;
-    case 'KeyF': if (MA.joined && !MA.dead) { if (MA.mode === 'follow') { MA.mode = 'hold'; MA.hold = { x: MA.x, z: MA.z }; say('mara', 'Okay. I will wait here. Do not be long.'); } else { MA.mode = 'follow'; MA.hold = null; say('mara', 'Coming. Right behind you.'); } } break;
+    case 'KeyF': toggleMara(); break;
     case 'Tab': $('inv').hidden = !$('inv').hidden; break;
   }
 });
@@ -2225,9 +2293,60 @@ function demoCamera(dt) {
   camera.position.copy(DEMO.cp); camera.lookAt(DEMO.cl); if (Math.abs(camera.fov - 50) > 0.1) { camera.fov = 50; camera.updateProjectionMatrix(); }
 }
 
+/* ================= touch controls ================= */
+const TOUCH = { on: false, mx: 0, my: 0, run: false, useReady: false, stick: null, look: null, fireLook: null };
+const PERF = { n: 0, t: 0 };
+function enableTouch() {
+  if (TOUCH.on) return; TOUCH.on = true; document.body.classList.add('touch'); $('touchUI').hidden = false;
+  if (S.gfx === 'high' && !S.running) { S.gfx = 'low'; setPressed('segGfx', 'low'); }
+}
+(function setupTouch() {
+  const stickEl = $('stick'), knob = stickEl.querySelector('i'), R = 50;
+  const zS = $('stickZone'), zL = $('lookZone');
+  zS.addEventListener('pointerdown', e => { e.preventDefault(); TOUCH.stick = { id: e.pointerId, x: e.clientX, y: e.clientY }; stickEl.hidden = false; stickEl.style.left = e.clientX + 'px'; stickEl.style.top = e.clientY + 'px'; knob.style.transform = ''; try { zS.setPointerCapture(e.pointerId); } catch (er) {} });
+  zS.addEventListener('pointermove', e => { const s0 = TOUCH.stick; if (!s0 || s0.id !== e.pointerId) return; let dx = e.clientX - s0.x, dy = e.clientY - s0.y; const L = Math.hypot(dx, dy); if (L > R) { dx *= R / L; dy *= R / L; } TOUCH.mx = dx / R; TOUCH.my = -dy / R; knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)'; });
+  const endStick = e => { if (!TOUCH.stick || TOUCH.stick.id !== e.pointerId) return; TOUCH.stick = null; TOUCH.mx = TOUCH.my = 0; stickEl.hidden = true; if (TOUCH.run) { TOUCH.run = false; $('tRun').setAttribute('aria-pressed', 'false'); } };
+  zS.addEventListener('pointerup', endStick); zS.addEventListener('pointercancel', endStick);
+  const lookStart = (e, slot) => { TOUCH[slot] = { id: e.pointerId, x: e.clientX, y: e.clientY }; };
+  const lookMove = (e, slot) => { const l = TOUCH[slot]; if (!l || l.id !== e.pointerId || S.paused) return; const k = 0.0055 * S.sens * (P.aim ? 0.55 : 1); CAM.yaw -= (e.clientX - l.x) * k; CAM.pitch -= (e.clientY - l.y) * k; l.x = e.clientX; l.y = e.clientY; };
+  zL.addEventListener('pointerdown', e => { e.preventDefault(); lookStart(e, 'look'); try { zL.setPointerCapture(e.pointerId); } catch (er) {} });
+  zL.addEventListener('pointermove', e => lookMove(e, 'look'));
+  const endLook = e => { if (TOUCH.look && TOUCH.look.id === e.pointerId) TOUCH.look = null; };
+  zL.addEventListener('pointerup', endLook); zL.addEventListener('pointercancel', endLook);
+  const fire = $('tFire');
+  fire.addEventListener('pointerdown', e => { e.preventDefault(); MB.l = true; fire.classList.add('down'); lookStart(e, 'fireLook'); try { fire.setPointerCapture(e.pointerId); } catch (er) {} });
+  fire.addEventListener('pointermove', e => lookMove(e, 'fireLook'));
+  const endFire = () => { MB.l = false; fire.classList.remove('down'); TOUCH.fireLook = null; };
+  fire.addEventListener('pointerup', endFire); fire.addEventListener('pointercancel', endFire);
+  const tap = (id, fn) => $(id).addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (S.running && !S.paused) fn(); });
+  tap('tAim', () => { MB.r = !MB.r; });
+  tap('tReload', () => startReload());
+  tap('tCrouch', () => doCrouch());
+  tap('tRun', () => { TOUCH.run = !TOUCH.run; });
+  tap('tMara', () => toggleMara());
+  tap('tMed', () => useMedkit());
+  tap('tSwap', () => switchWeapon(1 - P.w));
+  tap('tPause', () => pause());
+  const use = $('tUse');
+  use.addEventListener('pointerdown', e => { e.preventDefault(); K.KeyE = true; P.ePressed = true; use.classList.add('down'); try { use.setPointerCapture(e.pointerId); } catch (er) {} });
+  const endUse = () => { K.KeyE = false; use.classList.remove('down'); };
+  use.addEventListener('pointerup', endUse); use.addEventListener('pointercancel', endUse);
+  for (const b of document.querySelectorAll('#touchUI .tb')) b.addEventListener('contextmenu', e => e.preventDefault());
+  addEventListener('touchstart', () => enableTouch(), { passive: true, once: true });
+  if (matchMedia('(pointer: coarse)').matches) enableTouch();
+  setInterval(() => {
+    if (!TOUCH.on) return;
+    $('tAim').setAttribute('aria-pressed', MB.r ? 'true' : 'false'); $('tCrouch').setAttribute('aria-pressed', P.crouch ? 'true' : 'false'); $('tRun').setAttribute('aria-pressed', TOUCH.run ? 'true' : 'false');
+    const w = P.weapons && P.weapons[P.w]; if (w) $('tAmmo').textContent = w.mag + '/' + w.res;
+    $('tMed').textContent = 'Medkit ' + (P.medkits || 0); $('tMara').textContent = MA.mode === 'hold' ? 'Mara: follow' : 'Mara: wait'; $('tMara').hidden = !MA.joined;
+    $('tUse').classList.toggle('ready', TOUCH.useReady);
+    $('rotate').hidden = !(S.running && innerHeight > innerWidth * 1.05);
+  }, 150);
+})();
+
 /* ================= boot ================= */
 buildWorld(); buildVegetation(); flushStatic(); buildNav(); buildCover(); defineIAs();
-const startBtn = $('btnStart'); startBtn.disabled = true; startBtn.textContent = 'Loading characters';
+const startBtn = $('btnStart'); startBtn.disabled = true; startBtn.textContent = 'Loading characters 0/3';
 loadRigs().then(ok => {
   P.model = buildHuman(LOOKS.player); MA.model = buildHuman(LOOKS.mara); P.model.ent = P; MA.model.ent = MA;
   newPlayerState(); newMaraState(); Object.assign(M, { stage: 0, sup: { water: false, med: false, battery: false }, defT: DEF_TIME, waveI: 0, kills: 0, shots: 0, hits: 0 });
@@ -2241,6 +2360,7 @@ function frame() {
   const dt = Math.min(clock.getDelta(), 0.05);
   S.menuT += dt;
   try {
+    if (S.running && !S.paused && !S.over && !DEMO.on) { PERF.n++; PERF.t += dt; if (PERF.t > 4) { const fps = PERF.n / PERF.t; PERF.n = 0; PERF.t = 0; if (fps < 30 && S.gfx === 'high') { S.gfx = 'low'; setPressed('segGfx', 'low'); applyGfx(); toast('Switched to low graphics for smoother play'); } } }
     if (S.running && !S.paused && !S.over) {
       S.t += dt; pathBudget = 3;
       if (DEMO.on) updateDemo(dt);
@@ -2257,7 +2377,7 @@ function updateEnemyIdle(e, dt) { if (!e.alive) return; const wp = e.route[e.ri]
 frame();
 function tick(dt){ S.t += dt; S.menuT += dt; pathBudget = 3; if (DEMO.on) updateDemo(dt); if (!S.running) return; updatePlayer(dt); updateMara(dt); for (const e of enemies) updateEnemy(e, dt); separate(); updateInteract(dt); updateMission(dt); updateCamera(dt); if (DEMO.on) demoCamera(dt); updateHUD(dt); updateFX(dt); updateWeather(dt); }
 function renderNow() { renderer.render(scene, camera); }
-window.__ash = { renderNow, startDemo, DEMO, AU, canvas, tick, camera, CAM, S, P, MA, M, get enemies() { return enemies; }, completeStage, begin, IA, HELI };
+window.__ash = { setSize: (w, h) => { renderer.setPixelRatio(1); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }, renderNow, startDemo, DEMO, AU, canvas, tick, camera, CAM, S, P, MA, M, get enemies() { return enemies; }, completeStage, begin, IA, HELI };
 })();
 </script>
 
