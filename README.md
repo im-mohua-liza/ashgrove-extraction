@@ -2,7 +2,7 @@
 
 A third-person survival action prototype that runs in the browser (three.js, no build step).
 
-Elias has to reach Mara in an abandoned mill town held by the Ravel militia, keep her alive, call for help from a radio tower, hold a landing zone and get both of them onto an evacuation helicopter.
+The Ravel militia ambush Elias and Mara on the road out of town and drag her away. Elias has to get her back from the abandoned mill town they hold, keep her alive, call for help from a radio tower, hold a landing zone and get both of them onto an evacuation helicopter.
 
 ## Gameplay video
 
@@ -17,6 +17,8 @@ npx serve .
 ```
 
 Or turn on GitHub Pages for this repository and open the Pages URL.
+
+**Start mission** opens with a short cutscene of the ambush. Skip it with the Skip intro button, Space, Enter or Esc.
 
 The title screen also has **Watch demo**, which plays a cinematic run through the mission.
 
@@ -50,7 +52,8 @@ Touch controls appear automatically: drag on the left half to move, drag on the 
 - Mara: path-finding follower who takes cover from enemies, cowers under fire, gives spoken and subtitle warnings, and can be told to wait or follow.
 - Militia AI: riflemen, flankers and heavies with patrols, suspicion, investigation, search, cover use, flanking and shared target information. Three difficulty levels.
 - Combat: two original weapons with recoil, spread, reloading and headshots.
-- Mission flow: find Mara, leave the yard, scavenge supplies, use the radio, reach the landing zone, hold it against waves, board the helicopter. Checkpoints after each objective.
+- Opening cutscene: the militia knock Elias down and take Mara; Elias vows to come for her.
+- Mission flow: rescue Mara, leave the yard, scavenge supplies, use the radio, reach the landing zone, hold it against waves, board the helicopter. Checkpoints after each objective.
 
 ## Credits and licenses
 
