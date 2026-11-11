@@ -4,6 +4,16 @@ A third-person survival action prototype that runs in the browser (three.js, no 
 
 The Ravel militia ambush Elias and Mara on the road out of town and drag her away. Elias has to get her back from the abandoned mill town they hold, keep her alive, call for help from a radio tower, hold a landing zone and get both of them onto an evacuation helicopter.
 
+## New in November 2026
+
+- A start screen that fits any window with no scrolling, and settings on their own screen
+- A tutorial that teaches the controls while you play, plus a tip each time a new kind of fight appears (spotted, flanker, heavy gunner, too close, hurt, out of ammo)
+- A knife for close combat: from behind, one silent takedown
+- More natural spoken lines, and a player for recorded human voices
+- Everything it needs is inside the folder (three.js and fonts copied in)
+
+Play it on Stratos Games: https://stratos.games/play/im-mohua-liza-ashgrove-extraction/ (back on the live site after the next release)
+
 ## Gameplay video
 
 A 72-second demo run (1280x720): [media/ashgrove-demo.mp4](media/ashgrove-demo.mp4)
@@ -24,7 +34,7 @@ The title screen also has **Watch demo**, which plays a cinematic run through th
 
 ## Phone and tablet
 
-Touch controls appear automatically: drag on the left half to move, drag on the right half to look, hold FIRE to shoot (drag on it to aim while firing), and tap AIM, RELOAD, CROUCH, USE, RUN, Mara, Medkit and Swap. Turn the phone sideways. Phones start on low graphics; laptops switch to low graphics automatically if the frame rate drops below 30.
+Touch controls appear automatically: drag on the left half to move, drag on the right half to look, hold FIRE to shoot (drag on it to aim while firing), and tap AIM, KNIFE, RELOAD, CROUCH, USE, RUN, Mara, Medkit and Swap. Turn the phone sideways. Phones start on low graphics; laptops switch to low graphics automatically if the frame rate drops below 30.
 
 ## Controls
 
@@ -38,6 +48,7 @@ Touch controls appear automatically: drag on the left half to move, drag on the 
 | R | Reload |
 | 1 / 2 | Carbine / sidearm |
 | E | Interact (hold for some) |
+| Q | Knife (close combat) |
 | F | Tell Mara to wait / follow |
 | H | Use a medkit |
 | V | Swap shoulder |
